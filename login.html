@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ログイン - もじナビ</title>
+    <!-- アプリ本体と同じフォントとTailwind設定を使用 -->
+    <link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tailwind_config.js"></script>
+    <style>
+        body { font-family: 'BIZ UDPGothic', sans-serif; }
+    </style>
+</head>
+<body class="bg-appbg h-screen flex flex-col items-center justify-center p-4 text-textmain">
+
+    <div class="bg-surface p-8 rounded-2xl shadow-sm border border-bordercolor max-w-md w-full text-center">
+        <!-- ロゴ部分 -->
+        <div class="flex justify-center items-center gap-2 text-primary mb-6">
+            <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72l5 2.73 5-2.73v3.72z"/></svg>
+            <h1 class="font-bold text-3xl">もじナビ</h1>
+        </div>
+        
+        <h2 class="text-lg font-bold mb-6 text-textmuted">学習をはじめる</h2>
+
+        <div id="error-message" class="hidden bg-red-100 text-danger text-sm font-bold p-3 rounded-lg mb-4"></div>
+
+        <form id="login-form" class="space-y-4">
+            <div>
+                <input type="text" id="userid" placeholder="学生ID" required
+                    class="w-full bg-appbg border border-bordercolor rounded-xl p-4 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary transition-all">
+            </div>
+            <div>
+                <input type="password" id="password" placeholder="パスワード" required
+                    class="w-full bg-appbg border border-bordercolor rounded-xl p-4 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary transition-all">
+            </div>
+            <button type="submit" id="submit-btn" class="w-full bg-primary hover:bg-blue-600 text-white font-bold text-xl py-4 rounded-xl shadow-md transition-colors flex justify-center items-center gap-2">
+                ログインする
+            </button>
+        </form>
+    </div>
+
+    <script>
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwIbZtMoYfLa8_t24xwkL4wtpfjp6KXVq-P8-ngg5xsW0ZJKxplxQkQoZtx_dr2apWh5g/exec";
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submit-btn');
+            const errorDiv = document.getElementById('error-message');
+            const userId = document.getElementById('userid').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            btn.disabled = true;
+            btn.innerHTML = 'ログイン中...';
+            errorDiv.classList.add('hidden');
+
+            try {
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({ action: 'login', userId, password })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // 成功時: ユーザー情報を保存して本体画面へ遷移
+                    localStorage.setItem('mojinavi_user', JSON.stringify(result.user));
+                    window.location.href = 'index.html'; 
+                } else {
+                    errorDiv.textContent = result.message;
+                    errorDiv.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.innerHTML = 'ログインする';
+                }
+            } catch (err) {
+                errorDiv.textContent = "通信に失敗しました。";
+                errorDiv.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = 'ログインする';
+            }
+        });
+
+        // ログイン済みの場合は自動リダイレクト
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('mojinavi_user')) {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>
