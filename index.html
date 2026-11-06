@@ -1172,11 +1172,10 @@
                     // 不合格(もう一度チャレンジ)のときは、書いた線を残して直せるようにする
                 }, 300);
             },
-            // ★ ここから追加：手作り感満載の物理演算パーティクル
             fireConfetti() {
                 const colors = ['#FF3B30', '#FF9500', '#FFCC00', '#4CD964', '#5AC8FA', '#007AFF', '#5856D6'];
                 const shapes = ['square', 'circle', 'star'];
-                const particleCount = 70; // 弾ける数
+                const particleCount = 150; // 弾ける数
 
                 for (let i = 0; i < particleCount; i++) {
                     const el = document.createElement('div');
