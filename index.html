@@ -473,6 +473,7 @@
         async function init() {
             await loadCurriculum();
             UI.initNav();
+            loadUserData();
             UI.renderGrids();
             CanvasApp.init('drawing-canvas');
             
